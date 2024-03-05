@@ -26,4 +26,7 @@ npm run dev
 
 ```sh
 npm run build
+git add dist -f  
+git commit -m "committing dist version now"  
+git subtree push --prefix dist origin gh-pages
 ```

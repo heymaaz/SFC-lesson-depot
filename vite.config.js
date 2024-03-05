@@ -5,7 +5,7 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/Lesson-Depot-SFC/',
+  base: '/SFC-lesson-depot/',
   plugins: [
     vue(),
   ],
