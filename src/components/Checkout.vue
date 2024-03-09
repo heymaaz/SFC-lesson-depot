@@ -113,6 +113,7 @@ export default{
                 }
             }
         },
+        /*
         place_order: function(){
             var sendOrder = {
                 "customerDetails": {
@@ -179,6 +180,78 @@ export default{
                 console.log(err);
             });
         }
+        */
+        place_order: function() {
+            var sendOrder = {
+                "customerDetails": {
+                    "name": this.order.full_name,
+                    "contactNumber": this.order.phone_number
+                },
+                "orderItems": [],
+                "totalPrice": Number(this.cartTotal),
+                "orderDate": new Date().toISOString().slice(0, 10)
+            };
+            
+            // Process the cart items
+            for (let i = 1; i < this.cart.length; i++) {
+                if (this.cart[i] > 0) {
+                    sendOrder.orderItems.push({
+                        "lessonId": this.lessons[i-1]._id,  //-1 as the index starts from 0
+                        "title": this.lessons[i-1].title,   //-1 as the index starts from 0
+                        "price": this.lessons[i-1].price,   //-1 as the index starts from 0
+                        "quantity": this.cart[i]            //cart is 1 indexed
+                    });
+                }
+            }
+            
+            console.log(sendOrder);
+            // Send the order to the server
+            fetch(this.api_url + 'orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(sendOrder)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                // Update the inventory of the lessons with the new stock level
+                let updatePromises = [];
+                for(let i = 1; i < this.cart.length; i++) {
+                    if(this.cart[i] > 0) {
+                        updatePromises.push(
+                        fetch(this.api_url + 'collections/lessons/'+this.lessons[i-1]._id, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                "availableInventory": Math.max(this.lessons[i-1].availableInventory - this.cart[i], 0)
+                            })
+                        })
+                        );
+                    }
+                }
+                
+                // Wait for all the inventory updates to complete
+                Promise.all(updatePromises)
+                .then(responses => {
+                    // All inventory updates have completed
+                    console.log('All inventory updated');
+                    alert("Order placed!"); // Alerting the user that the order has been placed
+                    location.reload(); // Reload the page
+                })
+                .catch(err => {
+                    console.log(err);
+                    // Handle any errors that occurred during inventory updates
+                });
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        }
+        
     }
 }
 </script>
