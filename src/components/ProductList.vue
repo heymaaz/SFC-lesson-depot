@@ -1,5 +1,4 @@
 <template>
-    <div>Welcome to the Product List Page</div>
     <div class="products_container">
         <div v-for="lesson in sortedLessons" class="product_card"><!--For each item in items-->
             <div>
@@ -37,7 +36,7 @@ export default {
     name: "ProductList",
     props: ["sortedLessons", "api_url", "lessons", "cart"],
     //emits: ["add-to-cart"],
-
+    
     emits: ["add-to-cart", "remove-from-cart", "clear-cart"],
     methods: {
         getImage: function (image) {

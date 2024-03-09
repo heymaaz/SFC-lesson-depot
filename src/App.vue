@@ -2,7 +2,9 @@
   <div id="app">
     <header>
       <h1>{{sitename}}</h1>
-      <div>Current view: {{ currentView }}</div>
+      <!-- Uncomment for debugging
+        <div>Current view: {{ currentView }}</div>
+      -->
       <button @click="showCheckout">{{cartCount}} <font-awesome-icon icon="fa-solid fa-cart-shopping" /> Checkout</button>
       <button @click="showTestConsole=!showTestConsole"><font-awesome-icon icon="fas fa-terminal" /> Show Test Console</button>
       <br>
@@ -21,6 +23,30 @@
     </header>
     
     <main>
+      <div v-if="isProductList">
+        <!--Search bar and sort buttons -->
+        <input type="text" v-model="search_query" placeholder="search"><!--v-model binds the input to the search_query variable -->
+        <button v-on:click="search_query=''">Clear</button><!--Button to clear the search query -->
+        <br>
+        Sort by:<!--Buttons to sort the lessons -->
+        <button v-on:click="sort_by='Title'">Title</button><!--Button to sort by title -->
+        <button v-on:click="sort_by='Price'">Price</button><!--Button to sort by price -->
+        <button v-on:click="sort_by='Location'">Location</button><!--Button to sort by location -->
+        <button v-on:click="sort_by='Availability'">Availability</button><!--Button to sort by availability -->
+        <button v-on:click="sort_by=''">None</button><!--Button to clear the sort by query -->
+        <br>
+        <button v-if="sort_by!=''" v-on:click="sort_desc=false">Ascending</button><!--Button to sort in ascending order -->
+        <button v-else disabled="disabled">Ascending</button>
+        <button v-if="sort_by!=''" v-on:click="sort_desc=true">Descending</button><!--Button to sort in descending order -->
+        <button v-else disabled="disabled">Descending</button>
+        
+        <div v-if="search_query != ''">
+          <h3>Search results for "{{search_query}}":</h3><!--Display the search query -->
+        </div>
+        <div v-if="sort_by != ''">
+          <h3>Sorted by {{sort_by}}: {{sortMethod}}</h3><!--Display the sort by query -->
+        </div>
+      </div>
       <component 
       :is="currentView" 
       v-bind="currentProps"
@@ -49,7 +75,7 @@ export default {
       lessonsCount: 0,//Initialising the count of lessons
       sitename: "Vue.js Pet Depot",
       cart: [],
-      currentView: markRaw(Checkout),
+      currentView: markRaw(ProductList),
       showTestConsole: false,
       api_url: api_url,
       
@@ -94,7 +120,7 @@ export default {
     });
   },
   methods: { 
-   
+    
     handleAddToCart(item) {
       this.addToCart(item);
     },
@@ -292,7 +318,9 @@ export default {
   },
   
   computed: {
-    
+    isProductList() {
+      return this.currentView === ProductList;
+    },
     currentProps() {
       if (this.currentView === ProductList) {
         return {
