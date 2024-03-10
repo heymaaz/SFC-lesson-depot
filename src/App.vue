@@ -73,7 +73,7 @@ export default {
     return { 
       lessons: [],//Initialising the lessons
       lessonsCount: 0,//Initialising the count of lessons
-      sitename: "Vue.js Pet Depot",
+      sitename: "Vue.js SFC Lesson Depot",
       cart: [],
       currentView: markRaw(ProductList),
       showTestConsole: false,
